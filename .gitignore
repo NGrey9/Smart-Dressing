@@ -1,0 +1,7 @@
+# cloth segmentation
+models/
+cloth_segmentation/__pycache__/
+
+# result
+result/
+
