@@ -1,7 +1,7 @@
 import numpy as np
 import os
 import sys
-sys.path.append('..')
+sys.path.append('./cloth_segmentation/')
 
 import torch
 import torch.nn.functional as F
@@ -105,7 +105,7 @@ class ClothSegmentor:
     def generate_mask(self, image_path):
         img = Image.open(image_path).convert('RGB')
         img_size = img.size
-        img = img.resize((768, 768), Image.BICUBIC)
+        # img = img.resize((768, 768), Image.BICUBIC)
         image_tensor = self.apply_transform(img)
         image_tensor = torch.unsqueeze(image_tensor, 0)
         
@@ -125,9 +125,11 @@ class ClothSegmentor:
             if np.any(output_arr == cls):
                 classes_to_save.append(cls)
 
+        masks = []
         # Save alpha masks
         for cls in classes_to_save:
             alpha_mask = (output_arr == cls).astype(np.uint8) * 255
+            masks.append(alpha_mask)
             alpha_mask = alpha_mask[0]  # Selecting the first channel to make it 2D
             alpha_mask_img = Image.fromarray(alpha_mask, mode='L')
             alpha_mask_img = alpha_mask_img.resize(img_size, Image.BICUBIC)
@@ -139,10 +141,9 @@ class ClothSegmentor:
         cloth_seg = cloth_seg.resize(img_size, Image.BICUBIC)
         cloth_seg.save(os.path.join("./result/cloth_seg", 'final_seg.png'))
 
+        # return output_arr[0]
+        return masks[0][0]
 
-input_image_path = './assets/model-873675_1280.jpg'
 
-segmentor = ClothSegmentor(device="cpu")
-segmentor.generate_mask(input_image_path)
 
 

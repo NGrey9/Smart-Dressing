@@ -1,0 +1,1 @@
+from .cloth_segmentor import ClothSegmentor
